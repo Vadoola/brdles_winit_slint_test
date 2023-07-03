@@ -1,0 +1,14 @@
+[package]
+name = "borderless_winit_test"
+version = "0.1.0"
+description = "Simple Program to try and create an MVP of a possible slint bug with Winit on Wayland"
+edition = "2021"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+slint = "1.1"
+
+[build-dependencies]
+slint-build = "1.1"

@@ -1,0 +1,89 @@
+export component BorderlessWindow inherits Window{
+    no-frame: true;
+    min-width: 200px;
+    min-height: 200px;
+
+    property <bool> title-bar-pressed: false;
+    property <length> title-bar-down-x: 0;
+    property <length> title-bar-down-y: 0;
+
+    callback close();
+    callback move(length, length);
+
+    function title-bar-mouse-move(x: length, y: length) {
+            move(x - title-bar-down-x, y - title-bar-down-y);
+    }
+
+    function title-bar-mouse-event(ev: PointerEvent, x: length, y: length) {
+        title-bar-pressed = ev.kind == PointerEventKind.down;
+        title-bar-down-x = x;
+        title-bar-down-y = y;
+    }
+
+    VerticalLayout {
+        padding: 0;
+
+        // Title Bar
+        Rectangle {
+            height: 32px;
+            background: lightgray;
+            HorizontalLayout {
+                padding-right: 7px;
+                padding-left: 7px;
+
+
+                Text {
+                    text: root.title;
+                    font-size: 13pt;
+                    color: black;
+                    TouchArea {
+                        moved => {
+                            title-bar-mouse-move(self.mouse-x, self.mouse-y);
+                        }
+                        pointer-event(ev) => {
+                            title-bar-mouse-event(ev, self.mouse-x, self.mouse-y);
+                        }
+                    }
+                }
+
+                Rectangle {
+                    y: parent.height/2 - self.height/2;
+                    width: parent.height * 0.75;
+                    height: parent.height * 0.75;
+                    closeBtn_ta := TouchArea {
+                        clicked => { close() }
+                    }
+                    Text {
+                        text: "X";
+                        color: closeBtn_ta.has-hover? closeBtn_ta.pressed? black: red : black;
+                        animate color {
+                            duration: 250ms;
+                        }
+                    }
+                }
+            }
+        }
+        Rectangle {
+            background: black;
+            @children
+        }
+    }
+}
+
+export component MainWindow inherits BorderlessWindow {
+    title: "Borderless Test";
+    width: 360px;
+    height: 480px;
+
+    callback close-window();
+    callback minimize-window();
+    callback move-window(length, length);
+
+    close => {
+        close-window();
+    }
+
+    move(offset-x, offset-y) => {
+        move-window(offset-x, offset-y);
+    }
+}
