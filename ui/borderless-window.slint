@@ -4,21 +4,9 @@ export component BorderlessWindow inherits Window{
     min-height: 200px;
 
     property <bool> title-bar-pressed: false;
-    property <length> title-bar-down-x: 0;
-    property <length> title-bar-down-y: 0;
 
     callback close();
-    callback move(length, length);
-
-    function title-bar-mouse-move(x: length, y: length) {
-            move(x - title-bar-down-x, y - title-bar-down-y);
-    }
-
-    function title-bar-mouse-event(ev: PointerEvent, x: length, y: length) {
-        title-bar-pressed = ev.kind == PointerEventKind.down;
-        title-bar-down-x = x;
-        title-bar-down-y = y;
-    }
+    callback move();
 
     VerticalLayout {
         padding: 0;
@@ -38,10 +26,12 @@ export component BorderlessWindow inherits Window{
                     color: black;
                     TouchArea {
                         moved => {
-                            title-bar-mouse-move(self.mouse-x, self.mouse-y);
+                            if (root.title-bar-pressed) {
+                                move();
+                            }
                         }
                         pointer-event(ev) => {
-                            title-bar-mouse-event(ev, self.mouse-x, self.mouse-y);
+                            title-bar-pressed = (ev.kind == PointerEventKind.down) && (ev.button == PointerEventButton.left);
                         }
                     }
                 }
@@ -76,14 +66,13 @@ export component MainWindow inherits BorderlessWindow {
     height: 480px;
 
     callback close-window();
-    callback minimize-window();
-    callback move-window(length, length);
+    callback move-window();
 
     close => {
         close-window();
     }
 
-    move(offset-x, offset-y) => {
-        move-window(offset-x, offset-y);
+    move() => {
+        move-window();
     }
 }
